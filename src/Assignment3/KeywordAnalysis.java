@@ -36,7 +36,8 @@ public class KeywordAnalysis {
 	}
 
 	private static List<String> readFile(String inputValue) {
-	         String line = null;
+	        
+		String line = null;
 	         List<String> lines = new ArrayList<>();
 		try {
 			FileReader reader = new FileReader("D:\\Nam\\"+inputValue+".txt");
