@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -25,22 +26,24 @@ public class KeywordAnalysis {
 		
 		String[] inputValues = inputs.split("\\s");
 		
-		String[] fileContents = readFile(inputValues[0]);
+		List<String> fileContents = readFile(inputValues[0]);
 				
 		Map<String , Integer> mapContents = analyze(fileContents);
 		
-		writeValuesToAFile(mapContents,inputValues[1]);
+		Map<String,String> frequentWords = calculatePercentageOfFrequentWords(mapContents);
+		
+		writeValuesToAFile(frequentWords,inputValues[1]);
 	}
-	
-	private static String[] readFile(String inputValue) {
+
+	private static List<String> readFile(String inputValue) {
 	         String line = null;
-	         String[] lines = null;
+	         List<String> lines = new ArrayList<>();
 		try {
-			FileReader reader = new FileReader("C:\\"+inputValue+".txt");
+			FileReader reader = new FileReader("D:\\Nam\\"+inputValue+".txt");
 			BufferedReader bufferedReader = new BufferedReader(reader);
 	       
             while((line = bufferedReader.readLine()) != null) {
-                 lines = line.split("\\s|\\.");
+                 lines.addAll(Arrays.asList(line.split("\\s|\\.")));
             }   
 
 	        bufferedReader.close();
@@ -55,7 +58,7 @@ public class KeywordAnalysis {
 		 
 	}
 
-	private static Map<String, Integer> analyze(String[] fileContents) {
+	private static Map<String, Integer> analyze(List<String> fileContents) {
 		
 		Map<String,Integer> mapCount = new HashMap<>();
 		
@@ -72,32 +75,46 @@ public class KeywordAnalysis {
 		return mapCount;
 	}
 	
-	private static void writeValuesToAFile(Map<String, Integer> mapContents, String inputValues) {
+	private static Map<String, String> calculatePercentageOfFrequentWords(Map<String, Integer> mapContents) {
 		
-		int valuesToBePrinted = mapContents.size();
+		Map<String,String> mapWithPercentage = new HashMap<>();
+		Map<String, Integer> mapWithFrequentValues = new HashMap<>();
+		
+		int totalValues = mapContents.size();
+
+		for(Map.Entry<String, Integer> mapEntry:mapContents.entrySet()) {
+			if(mapEntry.getValue()>=4) {
+				mapWithFrequentValues.put(mapEntry.getKey(), mapEntry.getValue());
+			}
+		}
+		
+		
+		for(Map.Entry<String, Integer> mapEntry:mapWithFrequentValues.entrySet()) {
+			Integer percentage = (int) ((mapEntry.getValue()*100)/totalValues);
+			String percent = percentage.toString();
+			mapWithPercentage.put(mapEntry.getKey(), percent+"("+mapEntry.getValue()+")");
+		}
+		
+		return mapWithPercentage;
+	}
+	
+	private static void writeValuesToAFile(Map<String, String> frequentWords, String inputValues) {
+		
+	//	int valuesToBePrinted = mapContents.size();
 		
 		FileWriter fStream;
 		BufferedWriter out;
 		
 		try {
-			fStream = new FileWriter("C:\\"+inputValues+".txt");
+			fStream = new FileWriter("D:\\Nam\\"+inputValues+".txt");
 			out = new BufferedWriter(fStream);
 			
-			int count=0;
-			
-			Iterator<Entry<String,Integer>> iter= (Iterator<Entry<String, Integer>>) mapContents.entrySet();
-			
-			while(iter.hasNext() && count < valuesToBePrinted) {
-				Map.Entry<String, Integer> mapEntry = iter.next();
-				System.out.println(mapEntry.getKey()+" -> "+mapEntry.getValue());
-				out.write(mapEntry.getKey()+" -> "+mapEntry.getValue());
-				
-				count++;
-				
-			}			
+			for(Map.Entry<String, String> mapEntry : frequentWords.entrySet()) {
+			out.write(mapEntry.getKey()+" -> "+mapEntry.getValue());
+			out.newLine();
+			}
 			out.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
 	}
