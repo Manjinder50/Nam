@@ -1,6 +1,8 @@
 package Assignment3;
 
-public class Country {
+import java.io.Serializable;
+
+public class Country implements Serializable {
 
 	private String country_name;
 	
